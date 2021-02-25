@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RedisExchangeAPI.Web.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IDistrubtedCacheRedisApp.Web
+namespace RedisExchangeAPI.Web
 {
     public class Startup
     {
@@ -23,16 +24,13 @@ namespace IDistrubtedCacheRedisApp.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<RedisService>();
 
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = "localhost:6380";
-            });
             services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RedisService redis)
         {
             if (env.IsDevelopment())
             {
@@ -50,6 +48,8 @@ namespace IDistrubtedCacheRedisApp.Web
             app.UseRouting();
 
             app.UseAuthorization();
+
+            redis.Connect();
 
             app.UseEndpoints(endpoints =>
             {
